@@ -29,6 +29,7 @@ class minecraft(
   $manage_curl   = true,
   $heap_size     = 2048,
   $heap_start    = 512,
+  $version       = '1.7.9',
 )
 {
   if $manage_java {
@@ -61,8 +62,10 @@ class minecraft(
   }
 
   s3file { "${homedir}/minecraft_server.jar":
-    source  => 'MinecraftDownload/launcher/minecraft_server.jar',
+    source  => "Minecraft.Download/versions/${version}/minecraft_server.${version}.jar",
+    ensure  => latest,
     require => User[$user],
+    notify  => Service['minecraft'],
   }
 
   file { "${homedir}/ops.txt":
@@ -104,6 +107,5 @@ class minecraft(
   service { 'minecraft':
     ensure    => running,
     require   => File['/etc/init.d/minecraft'],
-    subscribe => S3file["${homedir}/minecraft_server.jar"],
   }
 }
